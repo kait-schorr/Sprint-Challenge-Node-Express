@@ -20,4 +20,16 @@ router.post("/", (req, res) => {
   });
 });
 
+router.put("/:id", (req, res) => {
+  db.update(req.params.id, req.body).then(project => {
+    res.json(project);
+  });
+});
+
+router.delete("/:id", (req, res) => {
+  db.remove(req.params.id).then(count => {
+    res.json(count);
+  });
+});
+
 module.exports = router;
