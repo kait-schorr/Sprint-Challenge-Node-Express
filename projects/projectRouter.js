@@ -14,6 +14,12 @@ router.get("/:id", (req, res) => {
   });
 });
 
+router.get("/:id/actions", (req, res) => {
+  db.getProjectActions(req.params.id).then(actions => {
+    res.json(actions);
+  });
+});
+
 router.post("/", (req, res) => {
   db.insert(req.body).then(project => {
     res.json(project);
