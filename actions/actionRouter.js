@@ -1,6 +1,8 @@
+const _ = require("lodash");
 const express = require("express");
 
 const db = require("./actionModel");
+const projectDb = require("../projects/projectModel");
 
 const router = express.Router();
 
@@ -27,29 +29,54 @@ router.get("/:id", (req, res) => {
 });
 
 router.post("/", (req, res) => {
-  db
-    .insert(req.body)
-    .then(action => {
-      res.json(action);
-    })
-    .catch(err => {
-      res.status(500).json({
-        message: "There was a problem posting the action to the server."
+  if (
+    _.difference(["project_id", "description", "notes"], Object.keys(req.body))
+      .length < 1
+  ) {
+    projectDb
+      .get(req.body.project_id)
+      .then(response => {
+        db
+          .insert(req.body)
+          .then(action => {
+            res.json(action);
+          })
+          .catch(err => {
+            res.status(500).json({
+              message: "There was a problem posting the action to the server."
+            });
+          });
+      })
+      .catch(err => {
+        console.log("Ya done goofed");
+        res.status(400).json({ message: "There is no project with that ID." });
       });
+
+    if (projectDb.get(req.body.project_id) !== null) {
+    } else {
+      res.status(400).json("Your submitted project id doesn't exist.");
+    }
+  } else {
+    res.status(400).json({
+      message:
+        "You submitted invalid data, please check your keys and try again."
     });
+  }
 });
 
 router.put("/:id", (req, res) => {
-  db
-    .update(req.params.id, req.body)
-    .then(action => {
-      res.json(action);
-    })
-    .catch(err => {
-      res.status(500).json({
-        message: "There was a problem updating the action on the server."
+  if (req.body.project_id) {
+    db
+      .update(req.params.id, req.body)
+      .then(action => {
+        res.json(action);
+      })
+      .catch(err => {
+        res.status(500).json({
+          message: "There was a problem updating the action on the server."
+        });
       });
-    });
+  }
 });
 
 router.delete("/:id", (req, res) => {

@@ -16,7 +16,7 @@ server.use(express.json());
 server.use("/api/actions", actionRouter);
 server.use("/api/projects", projectRouter);
 
-const port = 5000;
+const port = 5001;
 
 server.listen(port, () => {
   console.log("API IS RUNNING");

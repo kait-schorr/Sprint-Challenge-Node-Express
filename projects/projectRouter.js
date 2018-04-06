@@ -19,6 +19,7 @@ router.get("/:id", (req, res) => {
   db
     .get(req.params.id)
     .then(projects => {
+      console.log("Projects: ", projects);
       res.json(projects);
     })
     .catch(err => {
@@ -43,29 +44,52 @@ router.get("/:id/actions", (req, res) => {
 });
 
 router.post("/", (req, res) => {
-  db
-    .insert(req.body)
-    .then(project => {
-      res.json(project);
-    })
-    .catch(err => {
-      res.status(500).json({
-        message: "There was a problem posting the project to the server."
+  if (req.body.name && req.body.description) {
+    db
+      .insert(req.body)
+      .then(project => {
+        res.json(project);
+      })
+      .catch(err => {
+        res.status(500).json({
+          message: "There was a problem posting the project to the server."
+        });
       });
+  } else {
+    res.status(400).json({
+      message: "You need to include a name and description in your submission."
     });
+  }
 });
 
 router.put("/:id", (req, res) => {
-  db
-    .update(req.params.id, req.body)
-    .then(project => {
-      res.json(project);
-    })
-    .catch(err => {
-      res.status(500).json({
-        message: "There was a problem updating the project on the server."
+  let updateKeys = Object.keys(req.body);
+  let acceptedKeys = ["name", "description", "completed"];
+  console.log("Update Keys: ", updateKeys);
+  let invalidKeys = updateKeys.filter(
+    key => !acceptedKeys.includes(key) //|| "description" || "completed");
+  );
+  let validKeys = updateKeys.filter(key => acceptedKeys.includes(key));
+  console.log("Invalid Keys: ", invalidKeys);
+  if (invalidKeys.length > 0) {
+    res.status(400).json({ message: "You sent invalid data." });
+  } else if (validKeys.length > 0) {
+    db
+      .update(req.params.id, req.body)
+      .then(project => {
+        res.json(project);
+      })
+      .catch(err => {
+        res.status(500).json({
+          message: "There was a problem updating the project on the server."
+        });
       });
+  } else {
+    res.status(400).json({
+      message:
+        "Please update either the project name, description, or completion status. "
     });
+  }
 });
 
 router.delete("/:id", (req, res) => {
