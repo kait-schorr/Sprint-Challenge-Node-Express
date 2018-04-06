@@ -48,7 +48,6 @@ router.post("/", (req, res) => {
           });
       })
       .catch(err => {
-        console.log("Ya done goofed");
         res.status(400).json({ message: "There is no project with that ID." });
       });
 

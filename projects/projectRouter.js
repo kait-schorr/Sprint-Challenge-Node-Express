@@ -72,7 +72,9 @@ router.put("/:id", (req, res) => {
   let validKeys = updateKeys.filter(key => acceptedKeys.includes(key));
   console.log("Invalid Keys: ", invalidKeys);
   if (invalidKeys.length > 0) {
-    res.status(400).json({ message: "You sent invalid data." });
+    res.status(400).json({
+      message: `You sent invalid data. These keys are not valid: ${invalidKeys}`
+    });
   } else if (validKeys.length > 0) {
     db
       .update(req.params.id, req.body)
